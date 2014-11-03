@@ -1,17 +1,36 @@
-
 "use strict";
 
+var tiles = [];
+var idx;
+for (idx = 1; idx <= 32; ++idx) {
+    tiles.push({
+        tileNum: idx,
+        src: 'img/tile' + idx + '.jpg',
+        flipped: false,
+        match: false
+    });
+}
+
+var timer;
+var elapsedSeconds = 0;
+var remainCount = 8;
+var turnCount = 0;
+var correctCount = 0;
+
 $(document).ready(function() {
-    var tiles = [];
-    var idx;
+    runGame();
+}); // jQuery ready function
 
 
-    for (idx = 1; idx <= 32; ++idx) {
-        tiles.push({
-            tileNum: idx,
-            src: 'img/tile' + idx + '.jpg'
-        });
-    }
+function runGame() {
+    var startTime = _.now();
+    timer = window.setInterval(function() {
+        elapsedSeconds = Math.floor((_.now() - startTime) / 1000);
+        $('#elapsed-seconds').text("Time: " + elapsedSeconds);
+        $('#remain-count').text("Matches Remaining: " + remainCount);
+        $('#correct-count').text("Matches Found: " + correctCount);
+        $('#turn-count').text("Turns Taken: " + turnCount);
+    }, 100);
 
     console.log(tiles);
     var shuffledTiles = _.shuffle(tiles);
@@ -30,6 +49,7 @@ $(document).ready(function() {
 
     var tileBack = 'img/tile-back.png'
     var gameBoard = $('#game-board');
+    $('#game-board').empty();
     var row = $(document.createElement('div'));
     var img;
     _.forEach(tilePairs, function(tile, elemIndex) {
@@ -37,7 +57,6 @@ $(document).ready(function() {
             gameBoard.append(row);
             row = $(document.createElement('div'));
         }
-
 
         img = $(document.createElement('img'));
         img.attr({
@@ -49,28 +68,85 @@ $(document).ready(function() {
     });
     gameBoard.append(row);
 
+
+    var clickCount = 0;
+    var lastTile;
+    var lastImage;
+    var stop = null;
     $('#game-board img').click(function() {
+        if (stop != null) {
+            if(!lastImage.flipped) {
+                window.setTimeout(function() {
+                    clearTimeout(timeOut);
+                    timeOut = null;
+                }, 1000);
+            }
+            return;
+        }
+
         var img = $(this);
         var tile = img.data('tile');
-        img.fadeOut(100, function() {
-            if (tile.flipped) {
-                img.attr('src', tileBack);
+        if (tile.flipped) {
+            return;
+        }
+        clickCount++;
+
+        if (clickCount % 2 == 0) {
+            turnCount++;
+            clickCount = 0;
+            flipTile(tile, img);
+            console.log(this.alt);
+            if(tile.tileNum == lastTile.tileNum) {
+                correctCount++;
+                remainCount--;
             } else {
-                img.attr('src', tile.src);
+                stop = window.setTimeout(function() {
+                    flipTile(tile, img);
+                    flipTile(lastTile, lastImage);
+                    stop = null;
+                }, 1000);
             }
-            tile.flipped = !tile.flipped;
-            img.fadeIn(100);
-        }); // after fadeOut
+        } else {
+            console.log(this.alt);
+            lastImage = $(this);
+            lastTile = lastImage.data('tile');
+            flipTile(lastTile, lastImage);
+        }
+        if(correctCount == 8) {
+            var win = Math.floor(elapsedSeconds);
+            clearInterval(timer);
+            clearInterval(stop);
+            if (window.confirm("Congratulations! You won in " + win + " seconds! Would you like to play again?")) {
+               runGame();
+            }
+            //$('#game-board').text("Congratulations! You won in " + win + " seconds!");
+        }
     }); // on click of gameboard images
 
-    var startTime = _.now();
-    var timer = window.setInterval(function() {
-        var elapsedSeconds = Math.floor((_.now() - startTime) / 1000);
-        $('#elapsed-seconds').text(elapsedSeconds);
+    $('#playAgain').click(function() {
+        clearInterval(timer);
+        clearInterval(stop);
+        elapsedSeconds = 0;
+        startTime = _.now();
+        correctCount = 0;
+        turnCount = 0;
+        remainCount = 8;
+        runGame();
+    });
 
-        if (elapsedSeconds >= 10) {
-            window.clearInterval(timer);
+    $('#howTo').click(function() {
+        alert("Click on boxes to reveal their image! Try to match all pairs, but if you pick two non-matching boxes, their contents will be re-hidden! Can you remember where everything is?");
+    });
+}
+
+function flipTile(tile, img) {
+    img.fadeOut(100, function() {
+        if (tile.flipped) {
+            img.attr('src', 'img/tile-back.png');
+        } else {
+            img.attr('src', tile.src);
         }
-    }, 1000);
-
-}); // jQuery ready function
+        tile.flipped = !tile.flipped;
+        img.fadeIn(100);
+    });   
+}

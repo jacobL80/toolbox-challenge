@@ -1,6 +1,51 @@
+@import url(https://fonts.googleapis.com/css?family=Raleway:300);
+@import url(https://fonts.googleapis.com/css?family=Lato:300,400);
+
+body {
+	font-family: 'Lato', 'Helvetica Neue', Helvetica, sans-serif;
+	font-size: 18px;
+	font-weight: 300;
+	background-image: url(../img/background.jpg);
+	background-size: cover;
+	background-repeat: no-repeat;
+    background-attachment: fixed;
+    
+}
+
+main {
+	margin-left: 30%;
+    margin-top: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
 
 #game-board img {
     width: 150px;
     height: 150px;
-    margin-right: 5px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+    cursor: pointer;
+}
+
+#stats {
+	font-size: 20px;
+}
+
+#button {
+	margin-top: 25px;
+}
+
+#header {
+	margin-bottom: 25px;
+}
+
+h1 {
+	font-size: 45px;
+}
+#remain-count, #turn-count, #correct-count, #elapsed-seconds, #header {
+	background-color: rgba(207, 205, 140, 0.5);
+}
+
+#remain-count, #turn-count, #correct-count, #elapsed-seconds {
+	font-size: 30px;
 }
