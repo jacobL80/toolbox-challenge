@@ -117,7 +117,12 @@ function runGame() {
             clearInterval(timer);
             clearInterval(stop);
             if (window.confirm("Congratulations! You won in " + win + " seconds! Would you like to play again?")) {
-               runGame();
+                elapsedSeconds = 0;
+                startTime = _.now();
+                correctCount = 0;
+                turnCount = 0;
+                remainCount = 8;
+                runGame();
             }
             //$('#game-board').text("Congratulations! You won in " + win + " seconds!");
         }
